@@ -104,8 +104,8 @@ def select_best(parent1, parent2, offspring1, offspring2):
 
     lis = sorted(lis, key=itemgetter(1), reverse=True)
     new_gen = True
-    if (lis[0][2] == False or (lis[0][2] == True and (lis[0][0] == parent1 or lis[0][0] == parent2))) and \
-            (lis[1][2] == False or (lis[1][2] == True and (lis[1][0] == parent1 or lis[1][0] == parent2))):
+    if (not lis[0][2] or (lis[0][2] and (lis[0][0] == parent1 or lis[0][0] == parent2))) and \
+            (not lis[1][2] or (lis[1][2] and (lis[1][0] == parent1 or lis[1][0] == parent2))):
         new_gen = False
 
     #print(newGeneration,"|",lis[0][1], lis[0][2], "|", lis[1][1], lis[1][2], "|", lis[2][1], lis[2][2], "|", lis[3][1], lis[3][2])
