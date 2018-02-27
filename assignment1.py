@@ -115,9 +115,11 @@ def select_best(parent1, parent2, offspring1, offspring2):
 
 if __name__ == "__main__":
     str_len = 100
-    last_pop_size = 0
+    min_bound = 0
+    max_bound = 1280
     pop_size = 10
     max_score = 100
+    convergence = False
 
     while pop_size < 1280:
         good_runs = 0
@@ -159,16 +161,16 @@ if __name__ == "__main__":
             if best_score_found:
                 good_runs += 1
 
-        print(pop_size, last_pop_size, good_runs)
+        print(pop_size, min_bound, max_bound, good_runs)
         if good_runs >= 24:
-            if abs(pop_size - last_pop_size) == 10:  # best found
+            convergence = True
+            if abs(pop_size - min_bound) == 10:  # best found
                 break
             else:
-                tmp = pop_size
-                pop_size = int(pop_size - (pop_size - last_pop_size) / 2)
-                last_pop_size = tmp
+                max_bound = pop_size
+                pop_size = int(max_bound - (max_bound - min_bound) / 2)
         else:
-            last_pop_size = pop_size
-            pop_size *= 2
+            min_bound = pop_size
+            pop_size = pop_size * 2 if not convergence else int(max_bound - (max_bound - min_bound) / 2)
 
     print(pop_size)
