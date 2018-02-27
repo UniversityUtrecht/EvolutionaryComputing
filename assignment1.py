@@ -138,8 +138,7 @@ if __name__ == "__main__":
             best_score_found = False
             while True:
                 # shuffle parents
-                for el in pop:
-                    rand.shuffle(el)
+                rand.shuffle(pop)
 
                 i = 0
                 while i < pop_size:
