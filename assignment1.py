@@ -84,15 +84,31 @@ def fit_tight_non_trap(element):
 
 
 # randomly linked Deceptive Trap function
-def fit_rand_deceptive_trap(element):
-    # TODO: randomly linked
-    return 0
+def fit_rand_deceptive_trap(element, links):
+    score = 0
+    scores = [3, 2, 1, 0, 4]
+    for i in range(len(links)):
+        one_count = sum([element[links[i][j]] for j in range(3)])
+        score += scores[one_count]
+    return score
 
 
 # randomly linked Non-Deceptive Trap function
-def fit_rand_non_trap(element):
-    # TODO: randomly linked
-    return 0
+def fit_rand_non_trap(element, links):
+    score = 0
+    scores = [1.5, 1, 0.5, 0, 4]
+    for i in range(len(links)):
+        one_count = sum([element[links[i][j]] for j in range(3)])
+        score += scores[one_count]
+    return score
+
+
+# generate random links
+def rand_links(str_len=100):
+    order = list(range(str_len))
+    rand.shuffle(order)
+    links = [order[i:i + 4] for i in range(0, str_len, 4)]
+    return links
 
 
 def select_best(parent1, parent2, offspring1, offspring2):
