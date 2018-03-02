@@ -2,39 +2,41 @@ import random as rand
 from operator import itemgetter
 
 
-def doCrossover(parent1, parent2):
-    return doCrossover1(parent1, parent2)
+def cross(parent1, parent2):
+    return cross_2x(parent1, parent2)
     #doCrossover2(parent1, parent2, offspring1, offspring2)
 
 
-def calcFintess(element):
-    return calcFintess1(element)
+def fit(element):
+    return fit_count_ones(element)
     #return calcFintess2(element)
     #return calcFintess3(element)
 
 
-def doCrossover1(parent1, parent2):
+# two-point crossover
+def cross_2x(parent1, parent2):
     point1 = rand.randint(0, len(parent1))
     point2 = rand.randint(point1, len(parent1))
 
-    offspring1 = [0]*len(parent1)
-    offspring2 = [0]*len(parent2)
+    offspring1 = [0] * len(parent1)
+    offspring2 = [0] * len(parent2)
     for i in range(point1):
         offspring1[i] = parent1[i]
         offspring2[i] = parent2[i]
 
-    for i in range(point2-point1):
-        offspring1[point1+i] = parent2[point1+i]
-        offspring2[point1+i] = parent1[point1+i]
+    for i in range(point2 - point1):
+        offspring1[point1 + i] = parent2[point1 + i]
+        offspring2[point1 + i] = parent1[point1 + i]
 
-    for i in range(len(parent1)-point2):
-        offspring1[point2+i] = parent1[point2+i]
-        offspring2[point2+i] = parent2[point2+i]
+    for i in range(len(parent1) - point2):
+        offspring1[point2 + i] = parent1[point2 + i]
+        offspring2[point2 + i] = parent2[point2 + i]
 
     return offspring1, offspring2
 
 
-def doCrossover2(parent1, parent2):
+# uniform crossover
+def cross_ux(parent1, parent2):
     offspring1 = [0] * len(parent1)
     offspring2 = [0] * len(parent2)
     for i in range(len(parent1)):
@@ -48,7 +50,8 @@ def doCrossover2(parent1, parent2):
     return offspring1, offspring2
 
 
-def calcFintess1(element):
+# Counting Ones function
+def fit_count_ones(element):
     score = 0
     for i in range(len(element)):
         if element[i] == 1:
@@ -56,116 +59,118 @@ def calcFintess1(element):
     return score
 
 
-def calcFintess2(element):
+# tightly linked Deceptive Trap function
+def fit_tight_deceptive_trap(element):
     score = 0
     i = 0
-    scores = [3,2,1,0,4]
-    while i<len(element):
-        numOfOnes = element[i] + element[i + 1] + element[i + 2] + element[i + 3]
-        score += scores[numOfOnes]
+    scores = [3, 2, 1, 0, 4]
+    while i < len(element):
+        one_count = element[i] + element[i + 1] + element[i + 2] + element[i + 3]
+        score += scores[one_count]
         i += 4
     return score
 
 
-def calcFintess3(element):
+# tightly linked Non-deceptive Trap function
+def fit_tight_non_trap(element):
     score = 0
     i = 0
-    scores = [1.5,1,0.5,0,4]
-    while i<len(element):
-        numOfOnes = element[i] + element[i + 1] + element[i + 2] + element[i + 3]
-        score += scores[numOfOnes]
+    scores = [1.5, 1, 0.5, 0, 4]
+    while i < len(element):
+        one_count = element[i] + element[i + 1] + element[i + 2] + element[i + 3]
+        score += scores[one_count]
         i += 4
     return score
 
 
-def calcFintess4(element):
+# randomly linked Deceptive Trap function
+def fit_rand_deceptive_trap(element):
     # TODO: randomly linked
     return 0
 
 
-def calcFintess5(element):
+# randomly linked Non-Deceptive Trap function
+def fit_rand_non_trap(element):
     # TODO: randomly linked
     return 0
 
 
-def selectBest(parent1, parent2, offspring1, offspring2):
-    lis = [(offspring1, calcFintess(offspring1), True),
-           (offspring2, calcFintess(offspring2), True),
-           (parent1, calcFintess(parent1), False),
-           (parent2, calcFintess(parent2), False)
+def select_best(parent1, parent2, offspring1, offspring2):
+    lis = [(offspring1, fit(offspring1), True),
+           (offspring2, fit(offspring2), True),
+           (parent1, fit(parent1), False),
+           (parent2, fit(parent2), False)
            ]
 
     lis = sorted(lis, key=itemgetter(1), reverse=True)
-    newGeneration = True
-    if (lis[0][2] == False or (lis[0][2] == True and (lis[0][0] == parent1 or lis[0][0] == parent2))) and \
-            (lis[1][2] == False or (lis[1][2] == True and (lis[1][0] == parent1 or lis[1][0] == parent2))):
-        newGeneration = False
+    new_gen = True
+    if (not lis[0][2] or (lis[0][2] and (lis[0][0] == parent1 or lis[0][0] == parent2))) and \
+            (not lis[1][2] or (lis[1][2] and (lis[1][0] == parent1 or lis[1][0] == parent2))):
+        new_gen = False
 
     #print(newGeneration,"|",lis[0][1], lis[0][2], "|", lis[1][1], lis[1][2], "|", lis[2][1], lis[2][2], "|", lis[3][1], lis[3][2])
 
-    return lis[0][0], lis[1][0], newGeneration, max(lis[0][1], lis[1][1])
+    return lis[0][0], lis[1][0], new_gen, max(lis[0][1], lis[1][1])
 
 
-def main():
-    stringLength = 100
-    lastPopulationSize = 0
-    populationSize = 10
-    bestPossibleScore = 100
+if __name__ == "__main__":
+    str_len = 100
+    min_bound = 0
+    max_bound = 1280
+    pop_size = 10
+    max_score = 100
+    convergence = False
 
-    while populationSize < 1280:
-        successfulRuns = 0
+    while pop_size < 1280:
+        good_runs = 0
 
         # do 25 runs
         for k in range(25):
-            population = []
-            for i in range(populationSize):
-                el = [0] * stringLength
-                for j in range(stringLength):
+            # generate population
+            pop = []
+            for i in range(pop_size):
+                el = [0] * str_len
+                for j in range(str_len):
                     el[j] = 1 if rand.random() > 0.5 else 0
-                population.append(el)
-
-
+                pop.append(el)
 
             # do GA
-            maxNumberOfRuns = 1000
-            differentGeneration = False
-            bestScoreFound = False
+            max_runs = 1000
+            diff_gen = False
+            best_score_found = False
             while True:
                 # shuffle parents
-                for el in population:
-                    rand.shuffle(el)
+                rand.shuffle(pop)
 
                 i = 0
-                while i < populationSize:
-                    offspring1, offspring2 = doCrossover(population[i], population[i + 1])
-                    best1, best2, childChosen, score = selectBest(population[i], population[i + 1], offspring1, offspring2)
-                    if childChosen:
-                        differentGeneration = True
-                    if score == bestPossibleScore:
-                        bestScoreFound = True
-                    population[i] = best1
-                    population[i+1] = best2
+                while i < pop_size:
+                    offspring1, offspring2 = cross(pop[i], pop[i + 1])
+                    best1, best2, child_chosen, score = select_best(pop[i], pop[i + 1], offspring1, offspring2)
+                    if child_chosen:
+                        diff_gen = True
+                    if score == max_score:
+                        best_score_found = True
+                    pop[i] = best1
+                    pop[i + 1] = best2
                     i += 2
 
-                maxNumberOfRuns -= 1
-                if maxNumberOfRuns <= 0 or not differentGeneration or bestScoreFound:
+                max_runs -= 1
+                if max_runs <= 0 or not diff_gen or best_score_found:
                     break
 
-            if bestScoreFound:
-                successfulRuns += 1
+            if best_score_found:
+                good_runs += 1
 
-        print(populationSize, lastPopulationSize, successfulRuns)
-        if successfulRuns >= 24:
-            if abs(populationSize - lastPopulationSize) == 10:  # best found
+        print(pop_size, min_bound, max_bound, good_runs)
+        if good_runs >= 24:
+            convergence = True
+            if abs(pop_size - min_bound) == 10:  # best found
                 break
             else:
-                tmp = populationSize
-                populationSize = int(populationSize - (populationSize - lastPopulationSize) / 2)
-                lastPopulationSize = tmp
+                max_bound = pop_size
+                pop_size = int(max_bound - (max_bound - min_bound) / 2)
         else:
-            lastPopulationSize = populationSize
-            populationSize *= 2
+            min_bound = pop_size
+            pop_size = pop_size * 2 if not convergence else int(max_bound - (max_bound - min_bound) / 2)
 
-    print(populationSize)
-
-main()
+    print(pop_size)
