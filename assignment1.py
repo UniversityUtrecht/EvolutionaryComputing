@@ -196,11 +196,6 @@ class GA:
                 if best_score_found:
                     good_runs += 1
 
-                pops = []
-                for el in pop:
-                    pops.append(el)
-                self.success_list.append({"pop_size": pop_size, "pops": pops})
-
             print(pop_size, min_bound, max_bound, good_runs)
             avg_cpu_time = (time.process_time() - time_start) / 25
             avg_num_of_generations = avg_num_of_generations / 25
