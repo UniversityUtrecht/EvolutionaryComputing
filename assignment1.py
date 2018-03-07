@@ -144,11 +144,9 @@ class GA:
 
     def do_GA(self):
         str_len = 100
-        #min_bound = 0
-        min_bound = 640
+        min_bound = 0
         max_bound = 1280
-        #pop_size = 10
-        pop_size = 1280
+        pop_size = 10
         max_score = 100
         convergence = False
 
