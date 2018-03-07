@@ -165,6 +165,7 @@ class GA:
                         el[j] = 1 if rand.random() >= 0.5 else 0
                     pop.append(el)
 
+
                 # do GA
                 max_runs = 3000
                 best_score_found = False
@@ -181,6 +182,8 @@ class GA:
                         best1, best2, child_chosen, score = self.select_best(pop[i], pop[i + 1], offspring1, offspring2)
                         if child_chosen:
                             diff_gen = True
+                        #elif score > 95:
+                        #    print("over 95", pop[i], pop[i+1], offspring1, offspring2, best1, best2)
                         if score == max_score:
                             best_score_found = True
                         pop[i] = best1
@@ -371,14 +374,14 @@ for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
-
+"""
 print("random nondeceptive 2x")
 _, results = ga.run(5, 1)
 thefile = open('random nondeceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
-
+"""
 print("random nondeceptive ux")
 _, results = ga.run(5, 2)
 thefile = open('random nondeceptive ux.txt', 'w')
