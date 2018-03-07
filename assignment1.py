@@ -102,7 +102,7 @@ class GA:
         score = 0
         scores = [3, 2, 1, 0, 4]
         for i in range(len(links)):
-            one_count = sum([element[links[i][j]] for j in range(3)])
+            one_count = element[links[i][0]] + element[links[i][1]] + element[links[i][2]] + element[links[i][3]]
             score += scores[one_count]
         return score
 
@@ -112,7 +112,7 @@ class GA:
         score = 0
         scores = [1.5, 1, 0.5, 0, 4]
         for i in range(len(links)):
-            one_count = sum([element[links[i][j]] for j in range(3)])
+            one_count = element[links[i][0]] + element[links[i][1]] + element[links[i][2]] + element[links[i][3]]
             score += scores[one_count]
         return score
 
@@ -188,7 +188,8 @@ class GA:
                         i += 2
 
                     run_number += 1
-                    if run_number >= max_runs or not diff_gen or best_score_found:
+                    #if run_number >= max_runs or not diff_gen or best_score_found:
+                    if not diff_gen or best_score_found:
                         break
 
                 avg_num_of_generations += run_number
@@ -376,7 +377,6 @@ thefile = open('2 random nondeceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
-
 
 print("random nondeceptive ux")
 _, results = ga.run(5, 2)
