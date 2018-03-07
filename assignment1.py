@@ -162,7 +162,7 @@ class GA:
                 for i in range(pop_size):
                     el = [0] * str_len
                     for j in range(str_len):
-                        el[j] = 1 if rand.random() > 0.5 else 0
+                        el[j] = 1 if rand.random() >= 0.5 else 0
                     pop.append(el)
 
                 # do GA
@@ -190,6 +190,7 @@ class GA:
                     run_number += 1
                     #if run_number >= max_runs or not diff_gen or best_score_found:
                     if not diff_gen or best_score_found:
+                        #print(diff_gen, best_score_found, max([sum(el) for el in pop]), run_number)
                         break
 
                 avg_num_of_generations += run_number
@@ -234,7 +235,7 @@ class GA:
         for i in range(pop_size):
             el = [0] * str_len
             for j in range(str_len):
-                el[j] = 1 if rand.random() > 0.5 else 0
+                el[j] = 1 if rand.random() >= 0.5 else 0
             pop.append(el)
 
         diff_gen = True
@@ -313,14 +314,14 @@ thefile.close()
 """
 print("ones 2x")
 _, results = ga.run(1,1)
-thefile = open('2 ones 2x.txt', 'w')
+thefile = open('ones 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
 print("ones ux")
 _, results = ga.run(1,2)
-thefile = open('2 ones ux.txt', 'w')
+thefile = open('ones ux.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
@@ -328,14 +329,14 @@ thefile.close()
 
 print("tight deceptive 2x")
 _, results = ga.run(2,1)
-thefile = open('2 tight deceptive 2x.txt', 'w')
+thefile = open('tight deceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
 print("tight deceptive ux")
 _, results = ga.run(2,2)
-thefile = open('2 tight deceptive ux.txt', 'w')
+thefile = open('tight deceptive ux.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
@@ -343,14 +344,14 @@ thefile.close()
 
 print("tight nondeceptive 2x")
 _, results = ga.run(3,1)
-thefile = open('2 tight nondeceptive 2x.txt', 'w')
+thefile = open('tight nondeceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
 print("tight nondeceptive ux")
 _, results = ga.run(3,2)
-thefile = open('2 tight nondeceptive ux.txt', 'w')
+thefile = open('tight nondeceptive ux.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
@@ -358,14 +359,14 @@ thefile.close()
 
 print("random deceptive 2x")
 _, results = ga.run(4, 1)
-thefile = open('2 random deceptive 2x.txt', 'w')
+thefile = open('random deceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
 print("random deceptive ux")
 _, results = ga.run(4, 2)
-thefile = open('2 random deceptive ux.txt', 'w')
+thefile = open('random deceptive ux.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
@@ -373,14 +374,14 @@ thefile.close()
 
 print("random nondeceptive 2x")
 _, results = ga.run(5, 1)
-thefile = open('2 random nondeceptive 2x.txt', 'w')
+thefile = open('random nondeceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
 print("random nondeceptive ux")
 _, results = ga.run(5, 2)
-thefile = open('2 random nondeceptive ux.txt', 'w')
+thefile = open('random nondeceptive ux.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
