@@ -2,7 +2,7 @@ import random as rand
 from operator import itemgetter
 import time
 import statistics
-
+import copy
 
 class GA:
 
@@ -155,6 +155,7 @@ class GA:
             avg_num_of_generations = 0
             self.avg_fitness_evaluations = 0
             time_start = time.process_time()
+
             # do 25 runs
             for k in range(25):
                 # generate population
@@ -170,7 +171,7 @@ class GA:
                 max_runs = 3000
                 best_score_found = False
                 run_number = 0
-
+                max_diff_gen = 1
                 while True:
                     # shuffle parents
                     rand.shuffle(pop)
@@ -191,10 +192,25 @@ class GA:
                         i += 2
 
                     run_number += 1
+                    if not diff_gen:
+                        max_diff_gen -= 1
+
                     #if run_number >= max_runs or not diff_gen or best_score_found:
-                    if not diff_gen or best_score_found:
+                    if max_diff_gen == 0 or best_score_found:
+                        # debug average fitness
+                        #avg_fitness = 0
+                        #max_fitness = 0
+                        #for el in pop:
+                        #    fitness = self.fit(el)
+                        #    avg_fitness += fitness
+                        #    max_fitness = max(max_fitness, fitness)
+                        #avg_fitness /= pop_size
+                        #print(max_diff_gen, best_score_found, avg_fitness, max_fitness)
+
                         #print(diff_gen, best_score_found, max([sum(el) for el in pop]), run_number)
                         break
+
+
 
                 avg_num_of_generations += run_number
 
@@ -305,16 +321,15 @@ class GA:
 
 ga = GA()
 
-"""
+
 print("special ones")
 results = ga.special_run()
 thefile = open('special ones.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
-"""
 
-"""
+
 print("ones 2x")
 _, results = ga.run(1,1)
 thefile = open('ones 2x.txt', 'w')
@@ -374,21 +389,21 @@ for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
 
-"""
+
 print("random nondeceptive 2x")
 _, results = ga.run(5, 1)
 thefile = open('random nondeceptive 2x.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
-"""
+
 print("random nondeceptive ux")
 _, results = ga.run(5, 2)
 thefile = open('random nondeceptive ux.txt', 'w')
 for item in results:
     thefile.write("%s\n" % item)
 thefile.close()
-"""
+
 
 """
 print("ones 2x:", ga.run(1,1))
