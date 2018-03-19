@@ -78,6 +78,18 @@ def swapcolors(solution, vertex1, vertex2):
     solution["cost"] = total_cost - vertex_cost_before + vertex_cost_after
 
 
+# unused at the moment
+def swapcolors_groups(solution, vertex1, vertex2, group1, group2):
+    total_cost = solution["cost"]
+    vertex_cost_before = get_two_vertex_cost(vertex1, vertex2, solution["elements"][group1], solution["elements"][group2])
+    solution["elements"][group1].remove(vertex1)
+    solution["elements"][group1].append(vertex2)
+    solution["elements"][group2].remove(vertex2)
+    solution["elements"][group2].append(vertex1)
+    vertex_cost_after = get_two_vertex_cost(vertex1, vertex2, solution["elements"][group2], solution["elements"][group1])  # swapped colors
+    solution["cost"] = total_cost - vertex_cost_before + vertex_cost_after
+
+
 
 def vdls(solution, vertices):
     max_iterations = 100
@@ -86,12 +98,11 @@ def vdls(solution, vertices):
     while True:
         #print(current_iteration, "/", max_iterations)
         start = time.time()
-        print("Iteration:", current_iteration, "out of", max_iterations, "with best cost", solution["cost"], "in time", elapsed)
+        #print("Iteration:", current_iteration, "out of", max_iterations, "with best cost", solution["cost"], "in time", elapsed)
         changed = False
+
         keys = list(vertices.keys())
         rand.shuffle(keys)
-
-
         for key in keys:  # 50ms per run
             best_swap = [0] * 3  # score vertex1 vertex2
             best_swap[0] = solution["cost"]
@@ -174,9 +185,9 @@ def select_best(parent1, parent2, offspring):
 
     lis = [(parent1, parent1["cost"], False),
            (parent2, parent2["cost"], False),
-           (offspring, offspring["cost"], True)  # todo: move this back to first place and do checking if parent-offspring are different, also there is always some offspring better
+           (offspring, offspring["cost"], True)  # todo: move this back to first place and do checking if parent-offspring are different, also there is too often some offspring better
            ]
-    lis = sorted(lis, key=itemgetter(1), reverse=True)
+    lis = sorted(lis, key=itemgetter(1), reverse=False)  # must be False as we are minimizing
 
     return lis[0][0], lis[1][0], (lis[0][2] or lis[1][2]), min(lis[0][1], lis[1][1])
 
@@ -186,6 +197,7 @@ def select_best(parent1, parent2, offspring):
 # total estimated - 41.8h
 
 print("Parsing file")
+#vertices = readfile('test.txt')
 #vertices = readfile('graph1.txt')
 vertices = readfile('simple.txt')
 
@@ -211,6 +223,8 @@ run_number = 0
 max_non_diff_gen = 50
 optimal_coloring_found = False
 best_score = 9999
+best_solution1 = None
+best_solution2 = None
 while True:
     diff_gen = False
     i = 0
@@ -230,6 +244,8 @@ while True:
         if score < best_score:
             best_score = score
         if best_score == 0:
+            best_solution1 = best1
+            best_solution2 = best2
             optimal_coloring_found = True
             break
 
@@ -238,7 +254,6 @@ while True:
         i += 2
 
     if optimal_coloring_found:
-        print("Found optimal solution.")
         break
 
     if not diff_gen:
@@ -249,4 +264,8 @@ while True:
 
     print(best_score, max_non_diff_gen, num_child_chosen)
 
+if optimal_coloring_found:
+    print("Found optimal solution.", best1, best2)
+else:
+    print("Solution not found.")
 
