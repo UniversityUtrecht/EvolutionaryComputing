@@ -35,21 +35,21 @@ def readfile(filename):
 
 def checksolution(solution, vertices):
     num_of_errors = 0
-    for group in solution["elements"]:
-        for key in group:
-            for neighbor in vertices[key]:
-                if neighbor in group:
-                    num_of_errors += 1
+
+    for key in vertices:
+        for neighbor in vertices[key]:
+            if solution["vertex_color"][key] == solution["vertex_color"][neighbor]:
+                num_of_errors += 1
     return num_of_errors/2
 
 
-def get_two_vertex_cost(vertex1, vertex2, group1, group2):
+def get_two_vertex_cost(solution, vertex1, vertex2):
     num_of_errors = 0
     for neighbor in vertices[vertex1]:
-        if neighbor in group1:
+        if solution["vertex_color"][neighbor] == solution["vertex_color"][vertex1]:
             num_of_errors += 1
     for neighbor in vertices[vertex2]:
-        if neighbor in group2:
+        if solution["vertex_color"][neighbor] == solution["vertex_color"][vertex2]:
             num_of_errors += 1
     return num_of_errors
 
@@ -57,36 +57,32 @@ def get_two_vertex_cost(vertex1, vertex2, group1, group2):
 def swapcolors(solution, vertex1, vertex2):
     total_cost = solution["cost"]
 
-    color1 = -1
-    color2 = -1
-    for i in range(len(solution["elements"])):
-        if vertex1 in solution["elements"][i]:
-            color1 = i
-        if vertex2 in solution["elements"][i]:
-            color2 = i
-        if color1 >= 0 and color2 >= 0:
-            break
+    color1 = solution["vertex_color"][vertex1]
+    color2 = solution["vertex_color"][vertex2]
 
-    vertex_cost_before = get_two_vertex_cost(vertex1, vertex2, solution["elements"][color1], solution["elements"][color2])
+    vertex_cost_before = get_two_vertex_cost(solution, vertex1, vertex2)
+
+    solution["vertex_color"][vertex1] = color2
+    solution["vertex_color"][vertex2] = color1
 
     solution["elements"][color1].remove(vertex1)
     solution["elements"][color1].append(vertex2)
     solution["elements"][color2].remove(vertex2)
     solution["elements"][color2].append(vertex1)
 
-    vertex_cost_after = get_two_vertex_cost(vertex1, vertex2, solution["elements"][color2], solution["elements"][color1])  # swapped colors
+    vertex_cost_after = get_two_vertex_cost(solution, vertex1, vertex2)  # swapped colors
     solution["cost"] = total_cost - vertex_cost_before + vertex_cost_after
 
 
 # unused at the moment
 def swapcolors_groups(solution, vertex1, vertex2, group1, group2):
     total_cost = solution["cost"]
-    vertex_cost_before = get_two_vertex_cost(vertex1, vertex2, solution["elements"][group1], solution["elements"][group2])
+    vertex_cost_before = get_two_vertex_cost(solution, vertex1, vertex2)
     solution["elements"][group1].remove(vertex1)
     solution["elements"][group1].append(vertex2)
     solution["elements"][group2].remove(vertex2)
     solution["elements"][group2].append(vertex1)
-    vertex_cost_after = get_two_vertex_cost(vertex1, vertex2, solution["elements"][group2], solution["elements"][group1])  # swapped colors
+    vertex_cost_after = get_two_vertex_cost(solution, vertex1, vertex2)  # swapped colors
     solution["cost"] = total_cost - vertex_cost_before + vertex_cost_after
 
 
@@ -137,20 +133,27 @@ def movetooffspring(solution1, solution2, offspring):
         if len(solution1["elements"][j]) > max_len:
             max_len = len(solution1["elements"][j])
             max_len_id = j
-    offspring["elements"].append(solution1["elements"][max_len_id])
 
-    for j in solution1["elements"][max_len_id]:
-        for k in solution2["elements"]:
-            if j in k:
-                k.remove(j)
-                break
-    solution1["elements"].pop(max_len_id)
+    if max_len <= 0:
+        offspring["elements"].append([])
+        return
+
+    num_of_offspring_groups = len(offspring["elements"])
+    offspring["elements"].append(solution1["elements"][max_len_id])
+    for key in solution1["elements"][max_len_id]:
+        solution1["vertex_color"][key] = -1
+        offspring["vertex_color"][key] = num_of_offspring_groups
+
+        solution2["elements"][solution2["vertex_color"][key]].remove(key)
+        solution2["vertex_color"][key] = -1
+
+    solution1["elements"][max_len_id] = []
 
 
 def gpx(parent1, parent2, K):
     solution1 = copy.deepcopy(parent1)
     solution2 = copy.deepcopy(parent2)
-    offspring = {"cost": 0, "elements": []}
+    offspring = {"cost": 0, "elements": [], "vertex_color": {}}
 
     for i in range(K):
         if i % 2 == 0:
@@ -158,58 +161,48 @@ def gpx(parent1, parent2, K):
         else:
             movetooffspring(solution2, solution1, offspring)
 
-    for i in range(len(solution1["elements"])):
-        for j in solution1["elements"][i]:
-            offspring["elements"][rand.randint(0, K - 1)].append(j)
-            for k in solution2["elements"]:
-                if j in k:
-                    k.remove(j)
-                    break
-        solution1["elements"][i] = []
-    for i in range(len(solution2["elements"])):
-        for j in solution2["elements"][i]:
-            offspring["elements"][rand.randint(0, K - 1)].append(j)
-            for k in solution1["elements"]:
-                if j in k:
-                    k.remove(j)
-                    break
-        solution2["elements"][i] = []
+    for group in solution1["elements"]:
+        for j in group:
+            color_group = rand.randint(0, K - 1)
+            offspring["vertex_color"][j] = color_group
+            offspring["elements"][color_group].append(j)
 
     offspring["cost"] = checksolution(offspring, vertices)
+
     return offspring
 
 
 def select_best(parent1, parent2, offspring):
-    #if offspring == parent1 or offspring == parent2:
-    #    return parent1, parent2, False, max(checksolution(parent1, vertices), checksolution(parent2, vertices))
-
-    lis = [(parent1, parent1["cost"], False),
-           (parent2, parent2["cost"], False),
-           (offspring, offspring["cost"], True)  # todo: move this back to first place and do checking if parent-offspring are different, also there is too often some offspring better
+    lis = [(offspring, offspring["cost"], True),
+           (parent1, parent1["cost"], False),
+           (parent2, parent2["cost"], False)
            ]
     lis = sorted(lis, key=itemgetter(1), reverse=False)  # must be False as we are minimizing
 
     return lis[0][0], lis[1][0], (lis[0][2] or lis[1][2]), min(lis[0][1], lis[1][1])
 
-# 150 nodes calc
-# generation - 5s per element -> 100*5 = 500s
-# GA - 20s per 2 elements -> 10s per element -> estimated runs 150, 100 pop size -> 150000s
-# total estimated - 41.8h
+
+# estimations
+# simple.txt 10s per 10 pop size -> 100s per 100 pop size
+# 12s per 10 pop size -> 120s per generation
+# 300 generations max -> 36000s = 10h
 
 print("Parsing file")
 #vertices = readfile('test.txt')
 #vertices = readfile('graph1.txt')
 vertices = readfile('simple.txt')
 
-K = 10
+K = 8
 pop_size = 100  #100
 
 print("Generating population")
 population = []
 for i in range(pop_size):
-    element = {"elements": [[] for _ in range(K)]}
+    element = {"elements": [[] for _ in range(K)], "vertex_color": {}}  # elements - color groups, vertex_color - color per vertex
     for key in vertices:
-        element["elements"][rand.randint(0, K - 1)].append(key)
+        color_group = rand.randint(0, K - 1)
+        element["elements"][color_group].append(key)
+        element["vertex_color"][key] = color_group
     element["cost"] = checksolution(element, vertices)
     start = time.time()
     vdls(element, vertices)
@@ -225,7 +218,11 @@ optimal_coloring_found = False
 best_score = 9999
 best_solution1 = None
 best_solution2 = None
+best1 = None
+best2 = None
+max_runs = 300
 while True:
+    time_start_loop = time.time()
     diff_gen = False
     i = 0
     num_child_chosen = 0
@@ -238,7 +235,7 @@ while True:
 
         #print(child_chosen)
         if child_chosen:
-            num_child_chosen +=1
+            num_child_chosen += 1
             diff_gen = True
 
         if score < best_score:
@@ -253,16 +250,19 @@ while True:
         population[i + 1] = best2
         i += 2
 
+    max_runs -= 1
+
     if optimal_coloring_found:
         break
 
     if not diff_gen:
         max_non_diff_gen -= 1
 
-    if max_non_diff_gen == 0:
+    if max_non_diff_gen == 0 or max_runs == 0:
         break
 
-    print(best_score, max_non_diff_gen, num_child_chosen)
+    elapsed_time_loop = time.time() - time_start_loop
+    print(best_score, max_non_diff_gen, num_child_chosen, max_runs, elapsed_time_loop)
 
 if optimal_coloring_found:
     print("Found optimal solution.", best1, best2)
