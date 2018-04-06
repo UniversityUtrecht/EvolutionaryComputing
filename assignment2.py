@@ -229,6 +229,7 @@ while True:
     while i < pop_size:
         #print(i, "/", pop_size)
 
+        rand.shuffle(population)
         offspring = gpx(population[i], population[i + 1], K)
         vdls(offspring, vertices)
         best1, best2, child_chosen, score = select_best(population[i], population[i + 1], offspring)
@@ -268,4 +269,3 @@ if optimal_coloring_found:
     print("Found optimal solution.", best1, best2)
 else:
     print("Solution not found.")
-
