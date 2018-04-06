@@ -106,7 +106,7 @@ def vdls(solution, vertices):
             for neighbor in vertices[key]:
                 swapcolors(solution, key, neighbor)
                 num_of_errors = solution["cost"]  # checksolution(solution, vertices)
-                if num_of_errors < best_swap[0]:
+                if num_of_errors <= best_swap[0]:
                     best_swap[0] = num_of_errors
                     best_swap[1] = key
                     best_swap[2] = neighbor
