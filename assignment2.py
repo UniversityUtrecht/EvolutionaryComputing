@@ -104,15 +104,31 @@ def vdls(solution, vertices):
             best_swap[0] = solution["cost"]
             swapped = False
             for neighbor in vertices[key]:
-                swapcolors(solution, key, neighbor)
-                num_of_errors = solution["cost"]  # checksolution(solution, vertices)
-                if num_of_errors <= best_swap[0]:
-                    best_swap[0] = num_of_errors
-                    best_swap[1] = key
-                    best_swap[2] = neighbor
-                    swapped = True
-                    changed = True
-                swapcolors(solution, key, neighbor)
+                color1 = solution["vertex_color"][key]
+                color2 = solution["vertex_color"][neighbor]
+                if color1 != color2: # simulate cost of swapping
+                    vertex_cost_before = 0
+                    vertex_cost_after = 0
+                    for neighbor2 in vertices[key]:
+                        neighbor2_color = solution["vertex_color"][neighbor2]
+                        if neighbor2_color == color1:
+                            vertex_cost_before += 1
+                        elif neighbor2_color == color2 and neighbor2 != neighbor:
+                            vertex_cost_after += 1
+                    for neighbor2 in vertices[neighbor]:
+                        neighbor2_color = solution["vertex_color"][neighbor2]
+                        if neighbor2_color == color2:
+                            vertex_cost_before += 1
+                        if neighbor2_color == color1 and neighbor2 != key:
+                            vertex_cost_after += 1
+                    num_of_errors = solution["cost"] - vertex_cost_before + vertex_cost_after
+                    if num_of_errors <= best_swap[0]:
+                        if num_of_errors < best_swap[0]:
+                            changed = True
+                        best_swap[0] = num_of_errors
+                        best_swap[1] = key
+                        best_swap[2] = neighbor
+                        swapped = True
             if swapped:
                 swapcolors(solution, best_swap[1], best_swap[2])
 
