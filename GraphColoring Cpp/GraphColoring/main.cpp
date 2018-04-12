@@ -36,6 +36,8 @@ struct Measure
 
 	int numberOfVdlsSwaps = 0;
 	int numberOfVdlsCalls = 0;
+
+	std::vector<std::string> parentChildCosts;
 };
 
 struct Group
@@ -603,6 +605,8 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 			avgChildFitness += offspring.cost;
 			currentRunMeasure.childFitnesses.push_back(offspring.cost);
 
+			currentRunMeasure.parentChildCosts.push_back("p1: " + std::to_string(population[pop1].cost) + " p2: " + std::to_string(population[pop2].cost) + " off:" + std::to_string(offspring.cost));
+
 			Element best1, best2;
 			bool childChosen = false;
 
@@ -709,8 +713,16 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 				" VDLS_calls: " << std::to_string(measures[i].numberOfVdlsCalls) << " || " <<
 				" VDLS_swaps: " << std::to_string(measures[i].numberOfVdlsSwaps) << " || " <<
 				"avg_parent_fitness: " << measures[i].avgParentFitness << " || " <<
-				"avg_child_fitness: " << measures[i].avgChildFitness << " || " <<
-				"parent_fitnesses: {";
+				"avg_child_fitness: " << measures[i].avgChildFitness << " || ";
+
+			std::cout << "parent_child_fitnesses: {";
+			for (size_t j = 0; j < measures[i].parentChildCosts.size(); j++)
+			{
+				myfile << "{" << measures[i].parentChildCosts[j] << "}";
+			}
+			myfile << "} ";
+
+			std::cout << "parent_fitnesses: {";
 			for (size_t j = 0; j < measures[i].parentFitnesses.size(); j++)
 			{
 				myfile << std::to_string(measures[i].parentFitnesses[j]) << ",";
