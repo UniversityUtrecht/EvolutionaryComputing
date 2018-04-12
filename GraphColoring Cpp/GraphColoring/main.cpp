@@ -789,7 +789,7 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < 10; i++)
 	{
 		int colorNum = K;
-		while (runGA(id, colorNum, vertices)) // Run algorithm with K colors and then decrease it by 1 until no optimal coloring found.
+		while (runGA(i, colorNum, vertices)) // Run algorithm with K colors and then decrease it by 1 until no optimal coloring found.
 			colorNum--;
 	}
 	
