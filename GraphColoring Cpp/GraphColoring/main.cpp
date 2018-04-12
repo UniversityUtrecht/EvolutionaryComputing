@@ -33,6 +33,9 @@ struct Measure
 
 	std::vector<double> parentFitnesses;
 	std::vector<double> childFitnesses;
+
+	int numberOfVdlsSwaps = 0;
+	int numberOfVdlsCalls = 0;
 };
 
 struct Group
@@ -553,8 +556,6 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 	Element *bestSolution = nullptr;
 	int maxRuns = 200;
 	std::vector<int> populationShuffleArray = generateArray(popSize);
-	numberOfVdlsCalls = 0;
-	numberOfVdlsSwaps = 0;
 
 	std::vector<Measure> measures;
 	std::cout << "Running GA" << std::endl;
@@ -566,6 +567,8 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 		auto c_start_wall = std::chrono::system_clock::now();
 
 		Measure currentRunMeasure;
+		numberOfVdlsCalls = 0;
+		numberOfVdlsSwaps = 0;
 
 		bool diffGen = false;
 		int i = 0;
@@ -650,6 +653,8 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 		currentRunMeasure.runNumber = runNumber;
 		currentRunMeasure.avgParentFitness = avgParentFitness;
 		currentRunMeasure.avgChildFitness = avgChildFitness;
+		currentRunMeasure.numberOfVdlsCalls = numberOfVdlsCalls;
+		currentRunMeasure.numberOfVdlsSwaps = numberOfVdlsSwaps;
 		// add coef
 
 		measures.push_back(currentRunMeasure);
@@ -701,6 +706,8 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 				"best_score: " << measures[i].bestScore << " || " <<
 				"cpu_time: " << measures[i].cpu_time << " || " <<
 				"elapsed_time: " << measures[i].elapsed_time << " || " <<
+				" VDLS_calls: " << std::to_string(measures[i].numberOfVdlsCalls) << " || " <<
+				" VDLS_swaps: " << std::to_string(measures[i].numberOfVdlsSwaps) << " || " <<
 				"avg_parent_fitness: " << measures[i].avgParentFitness << " || " <<
 				"avg_child_fitness: " << measures[i].avgChildFitness << " || " <<
 				"parent_fitnesses: {";
