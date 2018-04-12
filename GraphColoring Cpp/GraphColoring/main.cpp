@@ -716,7 +716,7 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 				myfile << std::to_string(measures[i].parentFitnesses[j]) << ",";
 			}
 			myfile << "} || child_fitnesses: {";
-			for (size_t j = 0; j < measures[i].parentFitnesses.size(); j++)
+			for (size_t j = 0; j < measures[i].childFitnesses.size(); j++)
 			{
 				myfile << std::to_string(measures[i].childFitnesses[j]) << ",";
 			}
