@@ -16,7 +16,7 @@
 #define NUM_COLORS 18
 #define EASIER_GRAPH false
 
-#define USE_VDLS false
+#define USE_VDLS true
 
 int numberOfVdlsSwaps = 0;
 int numberOfVdlsCalls = 0;
@@ -28,8 +28,11 @@ struct Measure
 	long long elapsed_time;
 	double cpu_time;
 
-	double averageParentFitness;
-	double averageChildFitness;
+	double avgParentFitness;
+	double avgChildFitness;
+
+	std::vector<double> parentFitnesses;
+	std::vector<double> childFitnesses;
 };
 
 struct Group
@@ -218,7 +221,7 @@ void VDLS(Element &solution, int K, const std::vector<Group> &vertices)
 			for (int j = 0; j < K; j++)
 			{
 				int numOfErrors = 0;
-				for (int k = 0; k < vertices[vertex1].elements.size(); k++)
+				for (size_t k = 0; k < vertices[vertex1].elements.size(); k++)
 				{
 					if (j == solution.vertexColor[vertices[vertex1].elements[k]])
 						numOfErrors++;
@@ -562,6 +565,8 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 		std::clock_t c_start_cpu = std::clock();
 		auto c_start_wall = std::chrono::system_clock::now();
 
+		Measure currentRunMeasure;
+
 		bool diffGen = false;
 		int i = 0;
 		int numChildChosen = 0;
@@ -574,6 +579,7 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 		for (int i = 0; i < popSize; i++)
 		{
 			avgParentFitness += population[i].cost;
+			currentRunMeasure.parentFitnesses.push_back(population[i].cost);
 		}
 		avgParentFitness = avgParentFitness / popSize;
 		bool scoreChanged = false;
@@ -592,6 +598,7 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 			}
 
 			avgChildFitness += offspring.cost;
+			currentRunMeasure.childFitnesses.push_back(offspring.cost);
 
 			Element best1, best2;
 			bool childChosen = false;
@@ -637,14 +644,12 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 		auto time_elapsed_wall = std::chrono::duration_cast<std::chrono::milliseconds>(c_end_wall - c_start_wall);
 
 
-
-		Measure currentRunMeasure;
 		currentRunMeasure.bestScore = bestScore;
 		currentRunMeasure.cpu_time = time_elapsed_cpu;
 		currentRunMeasure.elapsed_time = time_elapsed_wall.count();
 		currentRunMeasure.runNumber = runNumber;
-		currentRunMeasure.averageParentFitness = avgParentFitness;
-		currentRunMeasure.averageChildFitness = avgChildFitness;
+		currentRunMeasure.avgParentFitness = avgParentFitness;
+		currentRunMeasure.avgChildFitness = avgChildFitness;
 		// add coef
 
 		measures.push_back(currentRunMeasure);
@@ -696,9 +701,21 @@ bool runGA(int runId, int colorCount, std::vector<Group> &vertices)
 				"best_score: " << measures[i].bestScore << " || " <<
 				"cpu_time: " << measures[i].cpu_time << " || " <<
 				"elapsed_time: " << measures[i].elapsed_time << " || " <<
-				"avg_parent_fitness: " << measures[i].averageParentFitness << " || " <<
-				"avg_child_fitness: " << measures[i].averageChildFitness << std::endl;
+				"avg_parent_fitness: " << measures[i].avgParentFitness << " || " <<
+				"avg_child_fitness: " << measures[i].avgChildFitness << " || " <<
+				"parent_fitnesses: {";
+			for (size_t j = 0; j < measures[i].parentFitnesses.size(); j++)
+			{
+				myfile << std::to_string(measures[i].parentFitnesses[j]) << ",";
+			}
+			myfile << "} || child_fitnesses: {";
+			for (size_t j = 0; j < measures[i].parentFitnesses.size(); j++)
+			{
+				myfile << std::to_string(measures[i].childFitnesses[j]) << ",";
+			}
+			myfile << "}" << std::endl;
 		}
+		
 
 		if (bestSolution != nullptr)
 		{
@@ -750,8 +767,13 @@ int main(int argc, char *argv[])
 		K = atoi(argv[2]);
 	}
 
-	while (runGA(id, K, vertices)) // Run algorithm with K colors and then decrease it by 1 until no optimal coloring found.
-		K--;
+	for (int i = 0; i < 10; i++)
+	{
+		int colorNum = K;
+		while (runGA(id, colorNum, vertices)) // Run algorithm with K colors and then decrease it by 1 until no optimal coloring found.
+			colorNum--;
+	}
+	
 
 	getchar();
 }
